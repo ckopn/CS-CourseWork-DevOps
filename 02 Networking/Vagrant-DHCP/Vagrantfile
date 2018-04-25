@@ -1,0 +1,85 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+    config.vm.provider 'virtualbox' do |box|
+        box.cpus   = 1
+        box.memory = "1024"
+    end
+ 
+    config.vm.provision :shell,  
+        :preserve_order => true, 
+        :inline         => <<-SCRIPT
+            sudo yum install -y net-tools > /dev/null 2>&1
+        SCRIPT
+
+    config.vm.define :server do |box|
+        box.vm.hostname         = "dhcp"
+        box.vm.box              = "centos/7"
+        box.vm.box_check_update = false
+        box.vm.synced_folder ".", "/vagrant"
+        box.vm.network :private_network,  
+           :ip                  => "192.168.60.4",
+           :virtualbox__intnet  => true
+
+        box.vm.provision :shell,  
+            :preserve_order     => true, 
+            :inline             => <<-SCRIPT
+                sudo yum install -y dhcp tcpdump > /dev/null 2>&1
+            SCRIPT
+
+        box.vm.provision :shell,  
+            :preserve_order     => true, 
+            :run                => "always",
+            :inline             => <<-SCRIPT
+                sudo -s
+                cp  /vagrant/dhcp.conf /etc/dhcp/dhcpd.conf
+                cat /etc/dhcp/dhcpd.conf
+                systemctl start dhcpd
+            SCRIPT
+
+        # box.vm.provision :shell,  
+        #     :run                => "always",
+        #     :preserve_order     => true, 
+        #     :privileged         => false,
+        #     :inline             => <<-SCRIPT
+        #         sudo -s
+        #         cd /vagrant
+        #         tcpdump -w /vagrant/tcpdump.pcap -i eth1 &
+        #     SCRIPT
+    end
+
+
+    config.vm.define :client_mac do |box|
+        box.vm.hostname         = "dhcp-client-mac"
+        box.vm.box              = "centos/7"
+        box.vm.box_check_update = false
+
+        box.vm.network :private_network,  
+            :type               => "dhcp",
+            :mac                => "5CA1AB1E0001",
+            :virtualbox__intnet => true
+    end
+
+
+    config.vm.define :client_dyn_ip do |box|
+        box.vm.hostname         = "dhcp-client-ip"
+        box.vm.box              = "centos/7"
+        box.vm.box_check_update = false
+
+        box.vm.network :private_network,  
+            :type               => "dhcp", 
+            :virtualbox__intnet => true
+    end
+
+    config.vm.provision :shell,  
+        :preserve_order         => true,
+        :run                    => "always",
+        :inline                 => <<-SCRIPT 
+            HOST=$(hostname)
+            IP=$(ifconfig eth1 | grep -E -i -w 'ether|inet'  | grep -v inet6 | awk '{print $2}');
+            echo "$HOST: $IP"
+        SCRIPT
+
+end
