@@ -1,0 +1,34 @@
+usage: git fetch [<options>] [<repository> [<refspec>...]]
+   or: git fetch [<options>] <group>
+   or: git fetch`--multiple` [<options>] [(<repository> | <group>)...]
+   or: git fetch`--all` [<options>]
+
+   `-v`,`--verbose`         be more verbose
+   `-q`,`--quiet`           be more quiet
+   `--all`                 fetch from all remotes
+   `-a`,`--append`          append to .git/FETCH_HEAD instead of overwriting
+   `--upload-pack` <path>  path to upload pack on remote end
+   `-f`,`--force`           force overwrite of local branch
+   `-m`,`--multiple`        fetch from multiple remotes
+   `-t`,`--tags`            fetch all tags and associated objects
+   `-n`                    do not fetch all tags (--no-tags)
+   `-j`,`--jobs` <n>        number of submodules fetched in parallel
+   `-p`,`--prune`           prune remote-tracking branches no longer on remote
+   `--recurse-submodules`[=<on-demand>]
+                          control recursive fetching of submodules
+   `--dry-run`             dry run
+   `-k`,`--keep`            keep downloaded pack
+   `-u`,`--update-head-ok`  allow updating of HEAD ref
+   `--progress`            force progress reporting
+   `--depth` <depth>       deepen history of shallow clone
+   `--shallow-since` <time>
+                          deepen history of shallow repository based on time
+   `--shallow-exclude` <revision>
+                          deepen history of shallow clone, excluding rev
+   `--deepen` <n>          deepen history of shallow clone
+   `--unshallow`           convert to a complete repository
+   `--update-shallow`      accept refs that update .git/shallow
+   `--refmap` <refmap>     specify fetch refmap
+   `-4`,`--ipv4`            use IPv4 addresses only
+   `-6`,`--ipv6`            use IPv6 addresses only
+
