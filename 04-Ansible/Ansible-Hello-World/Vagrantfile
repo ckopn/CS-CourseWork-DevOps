@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+
+Vagrant.configure("2") do |config|
+
+	config.vm.provider "virtualbox" do |vb|
+		vb.memory = "1024"
+	end
+
+	config.vm.provision "shell", :inline => <<-SCRIPT
+		sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+		sudo yum -y install python36u
+		sudo yum -y install python36u-pip python36u-devel
+	SCRIPT
+
+	(1..6).each do |i|
+		config.vm.define "puppet-#{i}" do |box|
+			box.vm.hostname         = "puppet-#{i}.vanilla.com"
+			box.vm.box              = "centos/7"
+			box.vm.box_check_update = false
+			box.vm.synced_folder ".", "/vagrant"
+			box.vm.network :private_network,
+				:type => "dhcp"
+		end
+	end
+end
