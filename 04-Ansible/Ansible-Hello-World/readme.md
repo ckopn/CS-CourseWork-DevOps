@@ -13,6 +13,12 @@ vagrant up
 
 ... skip ...
 
+## Clear known Hosts if its reintiation (mac)
+
+```bash
+sudo unlink /var/root/.ssh/known_hosts
+```
+
 ## Run Ansible
 
 ```bash

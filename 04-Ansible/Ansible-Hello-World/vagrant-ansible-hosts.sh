@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
 DIR=$(pwd | sed "s/\//\\\\\//g")
+HOSTS=ansible_hosts
 
-echo "[puppets]" > ansible_hosts.txt
+
+echo "vanilla.com" > $HOSTS
+echo "[all:vars]" >> $HOSTS
+echo "host_domain=vanilla.com" >> $HOSTS
+echo "ansible_host='{{ inventory_hostname }}.{{ host_domain }}'" >> $HOSTS
+echo "ansible_connection=ssh" >> $HOSTS
+echo "ansible_user=vagrant" >> $HOSTS
+echo "ansible_python_interpreter=/usr/bin/python3.6" >> $HOSTS
+
+
 
 vagrant ssh-config| \
 grep -iE "key|host|port" | \
@@ -23,4 +33,4 @@ END {
 }
 ' | \
 sed "s/\"//g" | \
-awk '{print $1".vanilla.com", "ansible_connection=ssh", "ansible_user=vagrant", "ansible_port="$3, "ansible_private_key_file="$4}' >> ansible_hosts.txt
+awk '{print $1, "ansible_port="$3, "ansible_private_key_file="$4}' >> $HOSTS
