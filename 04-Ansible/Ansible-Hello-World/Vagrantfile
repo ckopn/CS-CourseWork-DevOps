@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
 		sudo yum -y install net-tools
 	SCRIPT
 
-	(1..2).each do |i|
+	(1..3).each do |i|
 		config.vm.define "puppet-#{i}" do |box|
 			box.vm.hostname         = "puppet-#{i}.vanilla.com"
 			box.vm.box              = "centos/7"

@@ -1,0 +1,93 @@
+---
+- name: install and configure nginx
+  hosts: front
+  become: yes
+  vars:
+    servers:
+    - 172.28.128.4
+    - 172.28.128.5
+
+  tasks:
+  - name: Install nginx
+    yum:  name=nginx state=latest
+
+  - name: Enable Nginx
+    service: name=nginx enabled=yes
+
+  - name: gather facts from db servers
+    setup:
+    delegate_to: "{{item}}"
+    delegate_facts: True
+    loop: "{{groups['back']}}"
+
+  - name: Create  Configuration
+    force: yes
+    template: src=nginx.conf.j2  dest=/etc/nginx/nginx.conf
+
+  - name: Start Nginx
+    service: name=nginx state=started
+
+  - name: Reload Nginx
+    service: name=nginx state=reloaded
+
+  handlers:
+  - name: restart nginx
+    service: name=nginx state=restarted
+
+- name: install and configure apache
+  hosts: back
+  become: yes
+
+  tasks:
+  - name: yum update
+    action: yum name=* state=latest
+
+  - name: yum install epel
+    yum: name=epel-release.noarch state=latest
+
+  - name: download remi repo rpm
+    get_url: url=http://rpms.famillecollet.com/enterprise/remi-release-7.rpm dest=/root/
+
+  - name: install remi repo rpm
+    yum: name=/root/remi-release-7.rpm state=present
+
+  - name: install php
+    yum: enablerepo=remi,remi-php56 name={{ item }} state=latest
+    with_items:
+    - php
+    - php-fpm
+    - php-pdo
+    - httpd
+    - httpd-tools
+    - php-mbstring
+
+  - name: change web root permission
+    file: path={{ item }} group=apache mode=0770 state=directory
+    with_items:
+    - /var/www/html
+    - /var/www
+
+  - name: change user permission
+    user: name=myuser groups=apache
+
+  - name: Enable Apache
+    service: name=httpd state=started enabled=yes
+
+  - name: Copy Files Apache
+    copy:
+        src: "{{ item  }}"
+        dest: "/var/www/html/"
+        owner: "apache"
+    with_fileglob:
+    - "apache/*.*"
+    - "apache/.*"
+
+  - name: Validate File copy
+    command: "ls -lah /var/www/html/"
+    register: hello
+
+  - name: Restart Apache
+    service: name=httpd state=restarted
+
+  - debug: msg="{{ hello.stdout  }}"
+  - debug: msg="{{ hello.stderr  }}"

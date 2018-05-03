@@ -3,13 +3,13 @@ DIR=$(pwd | sed "s/\//\\\\\//g")
 HOSTS=ansible_hosts
 
 
-echo "vanilla.com" > $HOSTS
-echo "[all:vars]" >> $HOSTS
+#echo "vanilla.com" > $HOSTS
+echo "[all:vars]" > $HOSTS
 echo "host_domain=vanilla.com" >> $HOSTS
 echo "ansible_host='{{ inventory_hostname }}.{{ host_domain }}'" >> $HOSTS
 echo "ansible_connection=ssh" >> $HOSTS
 echo "ansible_user=vagrant" >> $HOSTS
-echo "ansible_python_interpreter=/usr/bin/python3.6" >> $HOSTS
+# echo "ansible_python_interpreter=/usr/bin/python3.6" >> $HOSTS
 
 
 

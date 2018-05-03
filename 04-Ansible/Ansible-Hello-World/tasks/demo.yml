@@ -1,0 +1,32 @@
+---
+# Front end
+- name: install and configure nginx
+
+  hosts: front
+  become: yes
+
+  tasks:
+    - name: gather facts from db servers
+      setup:
+      delegate_to: "{{item}}"
+      delegate_facts: True
+      loop: "{{groups['back']}}"
+    - name: Create  Configuration
+      force: yes
+      template: src=nginx.conf.j2  dest=/etc/nginx/nginx.conf
+
+  # - debug: msg="{{ play_hosts }}"
+    - debug: msg="{% for host in groups['back'] %}  {{ hostvars[ host ]['ansible_all_ipv4_addresses'][0] }}  {% endfor %}"
+
+# Backend
+# - name: install and configure nginx
+c
+  # hosts: back
+
+  # tasks:
+
+  # - debug: msg="{% for item in hostvars[inventory_hostname]['ansible_all_ipv4_addresses']) %}!{{ item }} - {% endfor %}"
+  # - debug: msg="{% for item in group_names %}!{{ item }} - {% endfor %}"
+
+  # - debug: msg="{{ inventory_hostname }}"
+  # - debug: var=hostvars[inventory_hostname]['ansible_default_ipv6']['address']
