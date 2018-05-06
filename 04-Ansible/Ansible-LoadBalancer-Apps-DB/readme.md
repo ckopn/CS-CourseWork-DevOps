@@ -9,7 +9,7 @@ vagrant up
 vagrant-ansible-hosts.sh > roles/hosts
 
 # Add IPs to hosts file to resolv it correctly.
-declare -a arr=("balancer"  "application-1"  'application-2" "database")
+declare -a arr=("balancer" "application-1" "application-2" "database")
 for subdomain in "${arr[@]}"; do
 	echo "127.0.0.1	$subdomain.vanilla.com" >> /etc/hosts;
 done
@@ -32,6 +32,6 @@ sudo ansible all -i hosts -m ping -f 1
 sudo ansible-playbook -i hosts all-in-one.yml -f 1 -b
 ```
 
-Visit [127.0.0.1:8080](127.0.0.1:8080) to see results
+Visit [127.0.0.1:8080](http://127.0.0.1:8080) to see results
 
 
