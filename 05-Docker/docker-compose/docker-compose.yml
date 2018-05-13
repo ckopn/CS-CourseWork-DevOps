@@ -1,0 +1,63 @@
+version: '2'
+
+services:
+
+    ############################################################################
+    # Nginx Load Balancer
+    # proxy server that works with out application (php5-fpm/php7-fpm/apache)
+    #
+    # serve webhosts.
+    #   www.made.ua
+    ############################################################################
+    nginxlb:
+        build: ./dockerfiles/nginx
+        image: made/nginx:1.14.0
+        ports:
+            - "80:80"
+            - "443:443"
+        mem_limit: 1024m
+        volumes:
+            - ./www-root:/var/www/html/
+            - ./nginx.conf:/etc/nginx/nginx.conf:ro
+        links:
+            - php
+        networks:
+            default:
+                aliases:
+                    - www.made.ua
+
+    ############################################################################
+    # PHP 7.1 FPM
+    ############################################################################
+    php:
+        build: ./dockerfiles/php
+        image: made/php:7.1
+        mem_limit: 1024m
+        volumes:
+            - ./www-root:/var/www/html/
+        links:
+            - memcached
+            - mysql
+
+
+    ############################################################################
+    # MySQL 5.7.17
+    ############################################################################
+    mysql:
+        image: mysql:5.7
+        mem_limit: 1024m
+        volumes:
+            - ./db-mysql:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: rootpassword
+            MYSQL_USER: simpleuser
+            MYSQL_PASSWORD: password
+
+    ###########################################################################
+    # Memcached
+    ###########################################################################
+    memcached:
+        build: ./dockerfiles/memcached
+        image: made/memcached:1.5.7
+        mem_limit: 512m
+        command: memcached -m 512m
